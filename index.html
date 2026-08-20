@@ -35,6 +35,11 @@
   @keyframes fadehint { 0%{opacity:0;} 10%{opacity:1;} 80%{opacity:1} 100%{opacity:0} }
 
   /* 健康度 */
+  #levelTag {
+    position:absolute; top:8px; left:12px; z-index:5;
+    background:#1a1a2e; border:2px solid #000; padding:4px 12px; font-size:13px; font-weight:800;
+    box-shadow:3px 3px 0 rgba(0,0,0,.4); color:#ffd94d;
+  }
   #health {
     position:absolute; top:8px; right:12px; z-index:5;
     background:#1a1a2e; border:2px solid #000; padding:4px 12px; font-size:13px; font-weight:800;
@@ -125,6 +130,7 @@
   <div id="stage">
     <div class="hint">✋ 点一下它试试，多点点有惊喜</div>
     <div id="need-tip"></div>
+    <div id="levelTag">Lv.1</div>
     <div id="health">💚 状态良好</div>
     <div id="bubble">喵~</div>
   </div>
@@ -155,11 +161,11 @@
     </div>
   </div>
 
-  <script src="./lib/supabase.min.js?v=12"></script>
-  <script src="./supabaseConfig.js?v=12"></script>
-  <script src="./sync.js?v=12"></script>
-  <script src="./aikey.js?v=12"></script>
-  <script src="./pixcat.js?v=12"></script>
-  <script src="./pixapp.js?v=12"></script>
+  <script src="./lib/supabase.min.js?v=13"></script>
+  <script src="./supabaseConfig.js?v=13"></script>
+  <script src="./sync.js?v=13"></script>
+  <script src="./aikey.js?v=13"></script>
+  <script src="./pixcat.js?v=13"></script>
+  <script src="./pixapp.js?v=13"></script>
 </body>
 </html>

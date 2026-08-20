@@ -1,9 +1,10 @@
 // 像素猫 UI：状态 + 互动 + Supabase 多人同步 + 留言 + AI
 (function () {
-  const state = { hunger: 100, clean: 100, mood: 100 };
+  const state = { hunger: 100, clean: 100, mood: 100, xp: 0, level: 1 };
   // 本地是否已从云端初始化
   let cloudReady = false;
   let lastLocalWrite = 0;
+  let xpBarVisible = false;
   const NICK_KEY = 'yangmao-nickname';
 
   // 昵称
@@ -53,6 +54,9 @@
     else if(avg<70){cls='health-ok';label='🙂 还行';}
     h.className=cls;h.textContent=label;
     tip.textContent=tipText;tip.className=tipText?'show':'';
+    // 等级显示
+    const lt=document.getElementById('levelTag');
+    if(lt) lt.textContent='Lv.'+(state.level||1);
   }
 
   // 把当前状态写回共享（限频）
@@ -65,6 +69,8 @@
       hunger: Math.round(state.hunger),
       clean: Math.round(state.clean),
       mood: Math.round(state.mood),
+      xp: state.xp||0,
+      level: state.level||1,
       updated_by: getNick(),
     });
   }
@@ -74,6 +80,13 @@
     state.hunger=clamp(state.hunger+a.hunger);
     state.clean=clamp(state.clean+a.clean);
     state.mood=clamp(state.mood+a.mood);
+    // 成长：互动加经验（喂最多，其次玩/洗/摸）
+    const XP = { feed:8, clean:6, pet:5, play:10 };
+    if(window.Sync && XP[name]){
+      const got = window.Sync.addXp({xp:state.xp||0, level:state.level||1}, XP[name]);
+      if(got.level > (state.level||1)){ showBubble('🎉 羊毛升级到 Lv.'+got.level+' 啦！'); }
+      state.xp=got.xp; state.level=got.level;
+    }
     if(window.PixCat){
       if(a.act==='eat')window.PixCat.play('eat',2.0);
       else if(a.act==='play')window.PixCat.play('play',1.6);
@@ -83,15 +96,8 @@
     showBubble(a.bubble); updateUI(); pushState();
   }
 
-  // 本地衰减（每 5 秒），写回共享
-  setInterval(()=>{
-    state.hunger=clamp(state.hunger-1.2);
-    state.clean=clamp(state.clean-0.6);
-    state.mood=clamp(state.mood-0.8);
-    updateUI();
-    if(window.PixCat)window.PixCat.setAct('idle');
-    pushState();
-  },5000);
+  // 周期性兜底同步（本地不再自行衰减，衰减由 sync 基于 last_updated 计算）
+  setInterval(()=>{ pushState(); },30000);
 
   // 昵称
   const nickInput=document.getElementById('nickInput'),nickSave=document.getElementById('nickSave');
@@ -144,11 +150,20 @@
   refreshMsgs();
 
   // ===== Supabase 初始化：加载共享状态 + 实时订阅 =====
+  let firstCloudLoad=true;
   function cloudOnState(data, fromCloud){
     if(!data)return;
     state.hunger=clamp(data.hunger);state.clean=clamp(data.clean);state.mood=clamp(data.mood);
+    if(typeof data.xp!=='undefined')state.xp=data.xp;
+    if(typeof data.level!=='undefined')state.level=data.level;
     cloudReady=true;
     updateUI();
+    // 首次加载时，若状态很差给温柔提醒（保底体验）
+    if(firstCloudLoad && fromCloud){
+      firstCloudLoad=false;
+      const worst=Math.min(state.hunger,state.clean,state.mood);
+      if(worst<20) setTimeout(function(){ showBubble('🥺 羊毛有点难受，好多天没被好好照顾了…快喂喂它吧'); }, 1200);
+    }
   }
   if(window.Sync){
     window.Sync.init({
