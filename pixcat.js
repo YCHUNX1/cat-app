@@ -52,6 +52,34 @@
   let raf = null;
   let lastT = 0;
 
+  // ===== 粒子系统（水流/泡泡/星星） =====
+  const particles = [];
+  function spawnParticle(opts) {
+    particles.push({ x: opts.x, y: opts.y, vx: opts.vx || 0, vy: opts.vy || 0,
+      w: opts.w || 1, h: opts.h || 1, color: opts.color, life: opts.life || 1,
+      maxLife: opts.life || 1, type: opts.type || 'water', wob: Math.random() * 6.28 });
+  }
+  function updateParticles(dt) {
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.wob += dt * 4;
+      p.life -= dt;
+      if (p.type === 'bubble') { p.x += Math.sin(p.wob) * 0.8 * dt; p.vy -= 2 * dt; } // 泡泡上飘
+      if (p.life <= 0) particles.splice(i, 1);
+    }
+  }
+  function drawParticles() {
+    for (const p of particles) {
+      const tw = Math.max(0.6, p.w * (p.life / p.maxLife));
+      px(p.x, p.y, tw, p.type === 'bubble' ? tw : p.h, p.color);
+    }
+  }
+
+  // 花洒/泡泡生成状态（随 bath 动作）
+  let bathTimer = 0;
+
   // ===== 工具：画像素 =====
   function px(x, y, w, h, color) {
     if (!color) return;
@@ -98,6 +126,7 @@
       state.dizzy -= dt;
       state.starAnim += dt * 6;
     }
+    updateParticles(dt);
     draw();
   }
 
@@ -132,7 +161,9 @@
     drawHead();
     drawEar();
     drawFace();
-    drawAccessories();  }
+    drawAccessories();
+    drawParticles();
+  }
 
   function drawBackground() {
     // 简单像素地面（脚下）
@@ -312,6 +343,30 @@
         P.headX = Math.sin(state.frame / 30) * 0.6;
         P.blush = 0; // 腮红更明显（复用）
         break;
+      case 'bath':
+        // 洗澡：眯眼享受淋浴（花洒/水流/泡泡绘制在 drawAccessories 和粒子系统）
+        P.eyeH = 0; P.eyeOpenH = 1;
+        P.headY = 0.2;
+        P.bodyY = 0.5;
+        P.tailA = 0.1;
+        bathTimer += 1 / 60;
+        // 持续生成水流（从头顶喷头往下滴）
+        if (state.frame % 2 === 0) {
+          for (let i = 0; i < 3; i++) {
+            spawnParticle({ x: W / 2 - 1 + (Math.random() * 6 - 3), y: H - 28, vy: 8,
+              w: 1, h: 1.4, color: '#7fd0f0', life: 1.2, type: 'water' });
+          }
+        }
+        // 泡泡（猫身边升起）
+        if (state.frame % 6 === 0) {
+          spawnParticle({ x: W / 2 + (Math.random() * 12 - 6), y: H - 6, vx: (Math.random() * 2 - 1),
+            w: 1.6, h: 1.6, color: '#aee4ff', life: 1.8, type: 'bubble' });
+        }
+        if (Math.random() < 0.3) {
+          spawnParticle({ x: W / 2 - 6 + Math.random() * 12, y: H - 8, vx: (Math.random() * 2 - 1),
+            w: 1.3, h: 1.3, color: '#c8efff', life: 1.5, type: 'bubble' });
+        }
+        break;
       case 'play':
         // 蹦跳
         P.bodyY = Math.abs(Math.sin(t * Math.PI * 2 / 0.6)) * 4;
@@ -359,6 +414,13 @@
       px(hx - 1, H - 8, 7, 1, '#c98a4a');   // 碗沿
       px(hx, H - 9, 5, 1, '#ffd94d');       // 食物
       px(hx, H - 10, 3, 1, '#f59e3a');      // 食物堆
+    }
+    if (state.act === 'bath') {
+      // 花洒莲蓬头（画在猫头顶上方，最上层可见）
+      px(W / 2 - 2, H - 30, 8, 3, '#9aa0b8');   // 喷头横杆
+      px(W / 2 + 1, H - 33, 2, 3, '#666c84');   // 连接管
+      px(W / 2 + 2, H - 37, 2, 5, '#8a90a8');   // 立杆
+      px(W / 2 - 1, H - 29, 6, 1, '#bcd0e8');   // 喷头亮面
     }
   }
 
