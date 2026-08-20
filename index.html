@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>小狐狸 · 云养宠</title>
+<title>小狐�?· 云养�?/title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   html,body { height:100%; }
@@ -39,7 +39,7 @@
   }
   @keyframes fadehint { 0%{opacity:0;transform:translateX(-50%) translateY(4px)} 10%{opacity:1;transform:translateX(-50%) translateY(0)} 80%{opacity:1} 100%{opacity:0} }
 
-  /* 健康度徽章 */
+  /* 健康度徽�?*/
   #health {
     position:absolute; top:12px; right:14px; z-index:5;
     background:rgba(255,255,255,.9); border-radius:20px; padding:4px 14px;
@@ -90,7 +90,7 @@
   .act.play{ background:linear-gradient(135deg,#d0b0ff,#a884ff); box-shadow:0 5px 0 #8b66d6; }
   .act:active { box-shadow:0 1px 0 #00022; }
 
-  /* 留言板 */
+  /* 留言�?*/
   .board { border-top:2px dashed #f3d8d8; padding-top:12px; padding-bottom:4px; }
   .board-head { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
   .board-head b { font-size:14px; color:#b05a5a; }
@@ -118,19 +118,19 @@
   <div class="deco" id="deco"></div>
 
   <div class="topbar">
-    <h1><span class="heart">🦊</span> 小狐狸</h1>
-    <p>3D 云养宠 · 拖它转个圈 · 全村一起养</p>
+    <h1><span class="heart">🦊</span> 小狐�?/h1>
+    <p>3D 云养�?· 拖它转个�?· 全村一起养</p>
   </div>
 
   <!-- 3D 舞台 -->
   <div id="stage">
-    <div class="hint">✋ 按住拖动，转个角度看看它</div>
+    <div class="hint">�?按住拖动，转个角度看看它</div>
     <div id="need-tip"></div>
-    <div id="health">💚 状态良好</div>
-    <div id="bubble">开心!</div>
+    <div id="health">💚 状态良�?/div>
+    <div id="bubble">开�?</div>
   </div>
 
-  <!-- 状态 + 互动 + 留言 -->
+  <!-- 状�?+ 互动 + 留言 -->
   <div class="panel">
     <div class="stats">
       <div class="stat"><span class="ic">🍗</span><div class="lab">饥饿</div><div class="bar"><i id="hBar"></i></div><div class="val"><span id="hVal">100</span>%</div></div>
@@ -142,22 +142,22 @@
       <button class="act feed" data-act="feed"><span class="em">🍗</span>喂食</button>
       <button class="act clean" data-act="clean"><span class="em">🛁</span>洗澡</button>
       <button class="act pet" data-act="pet"><span class="em">🤚</span>摸摸</button>
-      <button class="act play" data-act="play"><span class="em">🎾</span>玩耍</button>
+      <button class="act play" data-act="play"><span class="em">🎾</span>玩�?/button>
     </div>
 
     <div class="board">
-      <div class="board-head"><b>💬 留言板</b><span class="tag">暂为本地</span></div>
+      <div class="board-head"><b>💬 留言�?/b><span class="tag">暂为本地</span></div>
       <div class="board-list" id="msgList"></div>
       <div class="board-input">
-        <input id="msgInput" maxlength="40" placeholder="说点什么…">
-        <button id="msgSend">发送</button>
+        <input id="msgInput" maxlength="40" placeholder="说点什么�?>
+        <button id="msgSend">发�?/button>
       </div>
     </div>
   </div>
 
-  <script src="./lib/three/three.min.js?v=3"></script>
-  <script src="./lib/three/GLTFLoader-umd.js?v=3"></script>
-  <script src="./app3d.js?v=3"></script>
-  <script src="./app.js?v=3"></script>
+  <script src="./lib/three/three.min.js?v=4"></script>
+  <script src="./lib/three/GLTFLoader-umd.js?v=4"></script>
+  <script src="./app3d.js?v=4"></script>
+  <script src="./app.js?v=4"></script>
 </body>
 </html>

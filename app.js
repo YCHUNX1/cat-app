@@ -25,6 +25,13 @@ function boot() {
 }
 boot();
 
+// 调试演示：URL 带 ?dizzy=1 时自动触发眩晕
+if (new URLSearchParams(location.search).get('dizzy') === '1') {
+  setTimeout(function () {
+    if (window.forceDizzy) window.forceDizzy();
+  }, 2500);
+}
+
 // 互动按钮 + 健康度刷新
 function refreshHealth() {
   if (!window.getState3D) return;

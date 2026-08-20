@@ -136,6 +136,13 @@ function playAnim(name, loop) {
 
 // ================== 交互 ==================
 const state = { hunger: 100, clean: 100, mood: 100 };
+
+// ===== 眩晕彩蛋 =====
+let rotateAccum = 0;       // 累计拖动旋转角度
+let dizzyState = null;     // null | 'spin' | 'wobble' | 'recover'
+let dizzyT = 0;            // 眩晕计时
+window.__dizzyDebug = null;
+const dizzyStars = [];     // 星星粒子
 const ACTIONS = {
   feed:  { hunger:+20, clean:-4, mood:+8,  bubble:'好吃! 🦊😋', anim:'run' },
   clean: { hunger:0,   clean:+30,mood:+5,  bubble:'香香哒 ✨', anim:'walk' },
@@ -157,6 +164,85 @@ function doAction3D(name) {
 }
 
 function clamp(v) { return Math.max(0, Math.min(100, v)); }
+
+// ===== 眩晕彩蛋核心 =====
+function startDizzy() {
+  dizzyState = 'spin';
+  dizzyT = 0;
+  rotateAccum = 0;
+  window.__dizzyDebug = 'spin';
+  // 切到轻柔动画或停止，让它看起来在晕
+  showBubble('🌀 转晕啦~ 头晕眼花…');
+  spawnDizzyStars();
+}
+
+function spawnDizzyStars() {
+  for (let i = 0; i < 5; i++) {
+    const s = new THREE.Mesh(
+      new THREE.SphereGeometry(0.05, 8, 8),
+      new THREE.MeshBasicMaterial({ color: i % 2 ? 0xffd94d : 0xffab3c })
+    );
+    s.userData = { angle: (i / 5) * Math.PI * 2, radius: 0.5, speed: 3 + i * 0.2, baseY: 1.9 };
+    scene.add(s);
+    dizzyStars.push(s);
+  }
+  window.__dizzyStarCount = dizzyStars.length;  // 调试
+}
+
+function clearDizzyStars() {
+  dizzyStars.forEach(s => { scene.remove(s); });
+  dizzyStars.length = 0;
+}
+
+function updateDizzy(dt) {
+  if (dizzyState === null) return;
+  dizzyT += dt;
+  const g = petGroup;
+  if (!g) return;
+
+  if (dizzyState === 'spin') {
+    // 快速自转 3 圈（约 1.2 秒）
+    g.rotation.y += dt * Math.PI * 5;  // 快速转
+    const spinDur = 1.2;
+    if (dizzyT >= spinDur) {
+      // 进入摇晃阶段
+      dizzyT = 0;
+      dizzyState = 'wobble';
+      window.__dizzyDebug = 'wobble';
+    }
+  } else if (dizzyState === 'wobble') {
+    // 东倒西歪摇晃约 2 秒
+    const wob = Math.sin(dizzyT * 12) * 0.15 * Math.max(0, 1 - dizzyT / 2);
+    g.rotation.z = wob;
+    g.rotation.x = Math.cos(dizzyT * 9) * 0.1 * Math.max(0, 1 - dizzyT / 2);
+    g.position.y = -0.75 + Math.abs(Math.sin(dizzyT * 8)) * 0.12 * Math.max(0, 1 - dizzyT / 2);
+    if (dizzyT >= 2.0) {
+      dizzyT = 0;
+      dizzyState = 'recover';
+      window.__dizzyDebug = 'recover';
+    }
+  } else if (dizzyState === 'recover') {
+    // 恢复正常姿态
+    g.rotation.z += (0 - g.rotation.z) * 0.2;
+    g.rotation.x += (0 - g.rotation.x) * 0.2;
+    g.position.y += (-0.75 - g.position.y) * 0.15;
+    if (dizzyT >= 0.8) {
+      dizzyState = null;
+      window.__dizzyDebug = null;
+      clearDizzyStars();
+      g.rotation.z = 0; g.rotation.x = 0;
+      showBubble('头还有点晕… 再转它一圈试试 😵');
+    }
+  }
+
+  // 星星绕头旋转
+  dizzyStars.forEach(s => {
+    const d = s.userData;
+    d.angle += d.speed * dt;
+    s.position.set(Math.cos(d.angle) * d.radius, d.baseY + Math.sin(dizzyT * 6) * 0.1, Math.sin(d.angle) * d.radius);
+    s.rotation.z += dt * 6;
+  });
+}
 
 function updateBars() {
   const bar = (id, v) => { const el = document.getElementById(id); if (el) { el.style.width = Math.round(v) + '%'; } };
@@ -188,7 +274,11 @@ function animate() {
 
   if (mixer) mixer.update(dt);
 
-  if (petGroup) {
+  // 眩晕状态机
+  updateDizzy(dt);
+  const dizzy = dizzyState !== null;
+
+  if (petGroup && !dizzy) {
     // 平滑转向（拖动旋转由一个外部 targetRot 控制，这里合并）
     petGroup.rotation.y += ((targetRot.y || 0) - petGroup.rotation.y) * 0.12;
   }
@@ -199,9 +289,9 @@ function animate() {
     if (currentAnim !== animNames.idle && animNames.idle) playAnim(animNames.idle, true);
   }
   // 触摸/互动时的轻微上下弹
-  if (actionT < 1.2 && actionAnim === 'run') {
+  if (!dizzy && actionT < 1.2 && actionAnim === 'run') {
     if (petGroup) petGroup.position.y = -0.75 + Math.abs(Math.sin(actionT * Math.PI * 2)) * 0.15;
-  } else if (petGroup) {
+  } else if (petGroup && !dizzy) {
     petGroup.position.y += (-0.75 - petGroup.position.y) * 0.1;
   }
 
@@ -216,8 +306,17 @@ function startPointerRotate(el) {
   window.addEventListener('pointermove', e => {
     if (!isDown) return;
     const dx = e.clientX - downX;
-    targetRot.y = (targetRot.y || 0) + dx * 0.008;
+    const delta = dx * 0.008;
+    targetRot.y = (targetRot.y || 0) + delta;
     downX = e.clientX;
+    // 累计旋转（度），满 360 触发眩晕
+    if (dizzyState === null) {
+      rotateAccum += Math.abs(delta) * 57.2958;
+      if (rotateAccum >= 360) {
+        rotateAccum = 0;
+        startDizzy();
+      }
+    }
   });
   window.addEventListener('pointerup', () => { isDown = false; });
 }
@@ -243,4 +342,5 @@ function showBubble(text) {
 // 暴露到全局（普通脚本模式）
 window.initCat3D = initCat3D;
 window.doAction3D = doAction3D;
+window.forceDizzy = startDizzy;  // 调试/彩蛋触发入口
 window.getState3D = function () { return { hunger: state.hunger, clean: state.clean, mood: state.mood }; };
