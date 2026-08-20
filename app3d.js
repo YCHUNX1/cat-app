@@ -1,5 +1,3 @@
-import * as THREE from './lib/three/three.module.js';
-
 // ===== 诊断：捕获错误并显示到屏幕 =====
 window.__catDiag = { step: 'module-loaded', errors: [], webgl: null };
 try {
@@ -54,7 +52,7 @@ const C = {
   white: 0xfff4e0,
 };
 
-export function initCat3D(container) {
+function initCat3D(container) {
   try {
     renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
   } catch (e) {
@@ -66,7 +64,12 @@ export function initCat3D(container) {
   renderer.setSize(container.clientWidth, container.clientHeight);
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  // r128 用 outputEncoding，新版用 outputColorSpace；做兼容
+  if (THREE.SRGBColorSpace !== undefined && 'outputColorSpace' in renderer) {
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+  } else if (THREE.sRGBEncoding !== undefined && 'outputEncoding' in renderer) {
+    renderer.outputEncoding = THREE.sRGBEncoding;
+  }
   container.appendChild(renderer.domElement);
 
   // 场景
@@ -294,7 +297,7 @@ function makeLid(side) {
 function maketail(fur) {
   const g = new THREE.Group();
   const seg = 8, len = 1.3;
-  const prev = new THREE.Object3D();
+  let prev = new THREE.Object3D();
   for (let i = 0; i < seg; i++) {
     const s = new THREE.Mesh(new THREE.SphereGeometry(0.14 - i * 0.012, 12, 10), fur);
     s.scale.set(1, 1, 1.4);
@@ -368,7 +371,11 @@ const ACTIONS = {
   play:  { hunger:-8,  clean:-10,mood:+15, bubble:'玩起来啦! 🎉', anim:'roll' },
 };
 
-export function doAction3D(name) {
+// 暴露到全局（普通脚本模式）
+window.initCat3D = initCat3D;
+window.doAction3D = doAction3D;
+
+function doAction3D(name) {
   const a = ACTIONS[name];
   if (!a) return;
   state.hunger = clamp(state.hunger + a.hunger);

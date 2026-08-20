@@ -1,18 +1,32 @@
-import { initCat3D, doAction3D } from './app3d.js';
+// 普通脚本模式：直接调用 window 上暴露的 3D 函数（由 app3d.js 挂载）
+// 注意：取决于脚本加载顺序（three.min.js -> app3d.js -> app.js）
 
 // 启动 3D
-const stage = document.getElementById('stage');
-initCat3D(stage);
+function boot() {
+  if (!window.initCat3D) {
+    // 说明 app3d.js 还没加载好，稍等再试
+    setTimeout(boot, 100);
+    return;
+  }
+  const stage = document.getElementById('stage');
+  try {
+    window.initCat3D(stage);
+  } catch (e) {
+    if (window.__catDiag) window.__catDiag.errors.push('initCat3D error: ' + (e.stack ? e.stack.split('\n').slice(0,3).join(' | ') : e.message));
+  }
+}
+boot();
 
 // 互动按钮
 document.querySelectorAll('.act').forEach(btn => {
-  btn.addEventListener('click', () => doAction3D(btn.dataset.act));
+  btn.addEventListener('click', () => window.doAction3D && window.doAction3D(btn.dataset.act));
 });
 
 // 点击舞台也摸摸猫
+const stage = document.getElementById('stage');
 stage.addEventListener('click', (e) => {
-  if (e.target === stage || e.target === document.getElementById('bubble')) return;
-  doAction3D('pet');
+  if (e.target === stage || e.target.id === 'bubble') return;
+  if (window.doAction3D) window.doAction3D('pet');
 });
 
 // 留言板（本地模拟）
