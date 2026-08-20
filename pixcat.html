@@ -6,6 +6,9 @@
 <title>羊毛 · 像素云养猫</title>
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#ffd94d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="./icon.svg">
 <style>
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   html,body{ background:#2d2a3e; }
@@ -208,12 +211,12 @@
     }
   </script>
   <script src="./lib/supabase.min.js"></script>
-  <script src="./supabaseConfig.js"></script>
-  <script src="./sync.js"></script>
-  <script src="./sound.js"></script>
-  <script src="./aikey.js"></script>
-  <script src="./pixcat.js"></script>
-  <script src="./pixapp.js"></script>
+  <script src="./supabaseConfig.js?v16"></script>
+  <script src="./sync.js?v16"></script>
+  <script src="./sound.js?v16"></script>
+  <script src="./aikey.js?v16"></script>
+  <script src="./pixcat.js?v16"></script>
+  <script src="./pixapp.js?v16"></script>
   <script>
     if('serviceWorker' in navigator){
       window.addEventListener('load',function(){
