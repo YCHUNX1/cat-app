@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>小橘�?· 像素云养�?/title>
+<title>羊毛 · 像素云养猫</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   html,body{ background:#2d2a3e; }
@@ -34,7 +34,7 @@
   }
   @keyframes fadehint { 0%{opacity:0;} 10%{opacity:1;} 80%{opacity:1} 100%{opacity:0} }
 
-  /* 健康�?*/
+  /* 健康度 */
   #health {
     position:absolute; top:8px; right:12px; z-index:5;
     background:#1a1a2e; border:2px solid #000; padding:4px 12px; font-size:13px; font-weight:800;
@@ -60,7 +60,7 @@
     box-shadow:0 -8px 0 rgba(0,0,0,.35); position:relative; z-index:2;
   }
 
-  /* 状态条（像素风�?*/
+  /* 状态条（像素风） */
   .stats { display:flex; gap:10px; }
   .stat { flex:1; text-align:center; }
   .stat .ic { font-size:18px; display:block; margin-bottom:2px; }
@@ -72,7 +72,7 @@
   .stat:nth-child(3) .bar i{background:repeating-linear-gradient(90deg,#ff6f92,#ff6f92 8px,#e05278 8px,#e05278 10px);}
   .stat .val { font-size:11px; font-weight:800; color:#e8e4f0; margin-top:2px; }
 
-  /* 按钮（像素风�?*/
+  /* 按钮（像素风） */
   .actions { display:flex; gap:8px; padding:12px 0 10px; }
   .act { flex:1; padding:11px 2px 9px; border:none; cursor:pointer; font-weight:800; color:#fff; font-size:13px; position:relative; transition:transform .06s; font-family:inherit; }
   .act .em { display:block; font-size:20px; margin-bottom:2px; }
@@ -82,7 +82,7 @@
   .act.pet { background:#ff6f92; box-shadow:4px 4px 0 #1a1a2e, -2px -2px 0 #000; color:#3a0024; }
   .act.play{ background:#a884ff; box-shadow:4px 4px 0 #1a1a2e, -2px -2px 0 #000; color:#1e003a; }
 
-  /* 留言�?*/
+  /* 留言板 */
   .board { border-top:2px dashed #393057; padding-top:10px; padding-bottom:2px; }
   .board-head { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
   .board-head b { font-size:13px; color:#ffd94d; }
@@ -102,14 +102,14 @@
 <body>
 
   <div class="topbar">
-    <h1>🐱 像素小橘�?/h1>
-    <p>像素云养�?· 点它摸一�?· 各种动作都有</p>
+    <h1>🐱 羊毛</h1>
+    <p>像素云养宠 · 点它摸一摸 · 各种动作都有</p>
   </div>
 
   <div id="stage">
-    <div class="hint">�?点一下它试试，多点点有惊�?/div>
+    <div class="hint">✋ 点一下它试试，多点点有惊喜</div>
     <div id="need-tip"></div>
-    <div id="health">💚 状态良�?/div>
+    <div id="health">💚 状态良好</div>
     <div id="bubble">喵~</div>
   </div>
 
@@ -124,15 +124,15 @@
       <button class="act feed" data-act="feed"><span class="em">🍗</span>喂食</button>
       <button class="act clean" data-act="clean"><span class="em">🛁</span>洗澡</button>
       <button class="act pet" data-act="pet"><span class="em">🤚</span>摸摸</button>
-      <button class="act play" data-act="play"><span class="em">🎾</span>玩�?/button>
+      <button class="act play" data-act="play"><span class="em">🎾</span>玩耍</button>
     </div>
 
     <div class="board">
-      <div class="board-head"><b>💬 留言�?/b><span class="tag">暂为本地</span></div>
+      <div class="board-head"><b>💬 留言板</b><span class="tag">暂为本地</span></div>
       <div class="board-list" id="msgList"></div>
       <div class="board-input">
-        <input id="msgInput" maxlength="40" placeholder="说点什么�?>
-        <button id="msgSend">发�?/button>
+        <input id="msgInput" maxlength="40" placeholder="说点什么…">
+        <button id="msgSend">发送</button>
       </div>
     </div>
   </div>
