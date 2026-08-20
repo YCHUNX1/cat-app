@@ -120,17 +120,85 @@
   renderMsgs();
   updateUI();
 
-  // 演示：URL 带 ?demo=动作 自动触发（用于验证/展示）
-  const demo = new URLSearchParams(location.search).get('demo');
-  if (demo && window.PixCat) {
-    setTimeout(() => {
-      if (demo === 'dizzy') { window.PixCat.setDizzy(); showBubble('🌀 转晕啦~'); }
-      else if (demo === 'sleep') { window.PixCat.setAct('sleep'); }
-      else if (demo === 'walk') { window.PixCat.setAct('walk'); }
-      else if (demo === 'run') { window.PixCat.setAct('run'); }
-      else if (demo === 'eat') { window.PixCat.play('eat', 2.5); }
-      else if (demo === 'play') { window.PixCat.play('play', 1.8); }
-      else if (demo === 'pet') { window.PixCat.play('pet', 1.2); }
-    }, 400);
+  // ===== AI 对话（DeepSeek） =====
+  let chatBusy = false;
+  function buildSystem() {
+    const cfg = window.AI_CONFIG || {};
+    // 注入当前状态到人设
+    let moodDesc = '';
+    if (state.hunger < 25) moodDesc = '我现在非常饿，正想要吃的';
+    else if (state.mood < 25) moodDesc = '我现在心情很不好，需要安慰';
+    else if (state.clean < 25) moodDesc = '我现在有点脏，想洗澡';
+    else if (state.mood >= 80) moodDesc = '我现在心情很好，想玩耍';
+    return (cfg.system || '') + ' 当前状态：' + moodDesc + '。用中文、以羊毛的口吻简短回答。';
   }
+  async function chatWithAI(userText) {
+    const cfg = window.AI_CONFIG;
+    if (!cfg || !cfg.apiKey || chatBusy) { return; }
+    chatBusy = true;
+    const st = document.getElementById('chatStatus');
+    if (st) { st.style.display = 'block'; st.textContent = '正在想怎么回…'; }
+    try {
+      const r = await fetch('https://api.deepseek.com/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + cfg.apiKey },
+        body: JSON.stringify({
+          model: cfg.model || 'deepseek-chat',
+          messages: [
+            { role: 'system', content: buildSystem() },
+            { role: 'user', content: userText }
+          ],
+          max_tokens: 80
+        })
+      });
+      const j = await r.json();
+      if (j.choices && j.choices[0]) {
+        const reply = j.choices[0].message.content.trim();
+        showBubble(reply);
+      } else {
+        showBubble('喵…我走神了~');
+      }
+    } catch (e) {
+      showBubble('喵…信号不好，等等再找我');
+    } finally {
+      chatBusy = false;
+      if (st) st.style.display = 'none';
+    }
+  }
+
+  // 聊天输入框
+  const chatInput = document.getElementById('chatInput');
+  const chatSend = document.getElementById('chatSend');
+  function sendChat() {
+    const v = chatInput.value.trim();
+    if (!v) return;
+    chatInput.value = '';
+    showBubble('喵……');
+    chatWithAI(v);
+  }
+  if (chatSend) chatSend.addEventListener('click', sendChat);
+  if (chatInput) chatInput.addEventListener('keydown', e => { if (e.key === 'Enter') sendChat(); });
+
+  // ===== AI 主动行为（按状态触发，偶尔让 AI 说话） =====
+  function aiBehavior() {
+    if (!window.PixCat) return;
+    const worst = Math.min(state.hunger, state.clean, state.mood);
+    // 状态差时主动撒娇/提醒
+    if (state.hunger < 30) {
+      window.PixCat.play('eat', 1);
+      if (Math.random() < 0.4) showBubble('喵…羊毛有点饿了，喂喂我好不好～');
+    } else if (state.clean < 30) {
+      window.PixCat.play('pet', 0.8);
+      if (Math.random() < 0.4) showBubble('我好像该洗个澡了呢…');
+    } else if (state.mood < 30) {
+      if (Math.random() < 0.4) showBubble('喵…有点孤独，能陪陪我吗');
+    } else {
+      // 状态好时偶尔活泼
+      if (Math.random() < 0.25) {
+        const acts = ['play', 'pet', 'walk'];
+        window.PixCat.play(acts[Math.floor(Math.random() * acts.length)], 1.2);
+      }
+    }
+  }
+  setInterval(aiBehavior, 20000); // 每 20 秒评估一次
 })();
