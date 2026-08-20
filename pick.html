@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>挑一只宠物 · 3D 选型</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:linear-gradient(180deg,#cdeffd,#ffd6e0 65%,#b7e0b0);height:100vh;overflow:hidden;font-family:'PingFang SC','Microsoft YaHei',sans-serif;display:flex;flex-direction:column;align-items:center}
+#stage{flex:1;width:100%;max-width:560px;position:relative;cursor:grab}
+.topbar{width:100%;text-align:center;padding:14px 0 0;color:#a14545}
+.topbar h1{font-size:18px;letter-spacing:2px}
+.topbar p{font-size:12px;margin-top:2px;color:#c07373}
+.hint{position:fixed;top:52px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,.85);padding:4px 14px;border-radius:20px;font-size:12px;color:#b05a5a;z-index:10}
+#lab{position:fixed;top:14px;right:14px;background:#fff;padding:4px 12px;border-radius:14px;font-size:12px;font-weight:700;color:#a14545;z-index:10}
+.pickbar{width:100%;max-width:560px;display:flex;gap:6px;padding:14px 10px 20px;overflow-x:auto}
+.pk{flex:0 0 auto;padding:8px 14px;border:none;border-radius:16px;font-weight:700;font-size:13px;cursor:pointer;color:#fff;background:linear-gradient(135deg,#ffb96b,#ff9f3c);transition:transform .1s}
+.pk.on{box-shadow:0 0 0 3px #fff,0 4px 12px rgba(255,120,60,.5)}
+.pk:active{transform:scale(.94)}
+</style>
+</head>
+<body>
+<div class="topbar"><h1>🐾 挑一只你的宠物</h1><p>按住拖动转视角 · 点下面换一个</p></div>
+<div class="hint">✋ 拖动换个角度看</div>
+<label id="lab">Fox 狐狸</label>
+<div id="stage"></div>
+<div class="pickbar" id="bar"></div>
+
+<script src="./lib/three/three.min.js"></script>
+<script src="./lib/three/GLTFLoader-umd.js"></script>
+<script>
+const MODELS=[
+  {name:'Fox',label:'🦊 狐狸'},
+  {name:'Parrot',label:'🦜 鹦鹉'},
+  {name:'Flamingo',label:'🦩 火烈鸟'},
+  {name:'Horse',label:'🐴 小马'},
+  {name:'Stork',label:'🪿 白鹳'},
+];
+const stage=document.getElementById('stage');
+let renderer,scene,camera,model,current;
+function initScene(){
+  renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  renderer.setSize(stage.clientWidth,stage.clientHeight);
+  renderer.outputEncoding=THREE.sRGBEncoding;
+  stage.appendChild(renderer.domElement);
+  scene=new THREE.Scene();
+  camera=new THREE.PerspectiveCamera(35,stage.clientWidth/stage.clientHeight,0.1,100);
+  camera.position.set(0,1.3,7);camera.lookAt(0,0,0);
+  scene.add(new THREE.HemisphereLight(0xffffff,0xffcce0,1.1));
+  const key=new THREE.DirectionalLight(0xffffff,1.5);key.position.set(3,5,4);scene.add(key);
+  const fill=new THREE.DirectionalLight(0xffb0d0,0.6);fill.position.set(-3,1,-2);scene.add(fill);
+  window.addEventListener('resize',()=>{camera.aspect=stage.clientWidth/stage.clientHeight;camera.updateProjectionMatrix();renderer.setSize(stage.clientWidth,stage.clientHeight);});
+  // 拖动旋转
+  let down=false,px=0,ry=0;
+  stage.style.touchAction='none';
+  stage.addEventListener('pointerdown',e=>{down=true;px=e.clientX;});
+  window.addEventListener('pointermove',e=>{if(!down)return;ry+=(e.clientX-px)*0.01;px=e.clientX;});
+  window.addEventListener('pointerup',()=>down=false);
+  animate();
+}
+function animate(){requestAnimationFrame(animate);if(model){model.rotation.y+=0.008;if(model)model.rotation.y=model.rotation.y;ry=model.rotation.y;}renderer.render(scene,camera);}
+function loadModel(i){
+  document.getElementById('lab').textContent=MODELS[i].label;
+  if(current){scene.remove(current);current=null;}
+  const loader=new THREE.GLTFLoader();
+  loader.load('./models/'+MODELS[i].name+'.glb',function(gltf){
+    const m=gltf.scene;
+    const box=new THREE.Box3().setFromObject(m);
+    const size=box.getSize(new THREE.Vector3());const c=box.getCenter(new THREE.Vector3());
+    const s=3.0/Math.max(size.x,size.y,size.z);
+    m.scale.multiplyScalar(s);
+    m.position.sub(c.multiplyScalar(s));
+    m.position.y=-1.1;
+    current=m; scene.add(m);
+  },undefined,function(e){document.getElementById('lab').textContent='加载失败: '+e.message;});
+}
+// 按钮
+const bar=document.getElementById('bar');
+MODELS.forEach((m,i)=>{
+  const b=document.createElement('button');b.className='pk';b.textContent=m.label;
+  b.onclick=()=>{document.querySelectorAll('.pk').forEach(x=>x.classList.remove('on'));b.classList.add('on');loadModel(i);};
+  bar.appendChild(b);
+});
+initScene();
+loadModel(0);
+document.querySelectorAll('.pk')[0].classList.add('on');
+</script>
+</body>
+</html>
