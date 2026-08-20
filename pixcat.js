@@ -10,12 +10,17 @@
 
   // ===== 调色板 =====
   const PAL = {
+  // 昼夜背景色
+  bgDay: ['#3a3a50', '#2d2a3e'], bgDusk: ['#5a4a5e', '#3a2a3e'], bgNight: ['#1a1a2e', '#0f0f1a'],
+  star: '#ffe8a0',
     // 金渐层猫
     outline: '#2a2018',
     fur: '#e8c27a',       // 金渐层主体（暖金）
     furL: '#f3d9a4',      // 浅金高光
     furD: '#c49a52',      // 深金
-    furTip: '#9c7a3c',    // 毛尖深色（金渐层特征）
+    furTip: '#9c7a3c',
+  // 昼夜背景
+  bgDay: ['#3a3a50', '#2d2a3e'], bgDusk: ['#5a4a5e', '#3a2a3e'], bgNight: ['#1a1a2e', '#0f0f1a'],    // 毛尖深色（金渐层特征）
     belly: '#fbf0d9',
     earIn: '#f0c9a5',
     nose: '#e88a9a',
@@ -58,9 +63,22 @@
   function playAct(name,dur){ state.act=name; state.actT=0; state.actDur=dur||1.2; }
 
   // ===== 背景 =====
-  function drawBackground(){
-    for(let gx=0; gx<W; gx+=2){ px(gx,H-6,2,6,(gx/2)%2===0?'#3f3a55':'#373350'); }
-    px(0,H-7,W,1,'#0f0f1a');
+  function getDayPhase() {
+    const h = new Date().getHours();
+    if (h >= 8 && h < 18) return 'day';
+    if (h >= 18 && h < 21) return 'dusk';
+    return 'night';
+  }
+  function drawBackground() {
+    const phase = getDayPhase();
+    const [c1, c2] = phase === 'day' ? PAL.bgDay : phase === 'dusk' ? PAL.bgDusk : PAL.bgNight;
+    for(let gx=0; gx<W; gx+=2){ px(gx, H-6, 2, 6, (gx/2)%2===0 ? c1 : c2); }
+    px(0, H-7, W, 1, c2);
+    if (phase === 'night') {
+      const sm = Math.floor(state.frame / 40);
+      const stars = [[5,5],[15,3],[25,6],[35,2],[45,7],[55,4],[10,9],[40,8],[50,10],[20,12]];
+      stars.forEach((p,i) => { if ((i + sm) % 3 !== 0) px(p[0], p[1], 1, 1, '#ffe8a0'); });
+    }
   }
 
   // ===== 绘制主流程 =====

@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <rect width="64" height="64" rx="12" fill="#2d2a3e"/>
+  <!-- 猫耳朵 -->
+  <polygon points="14,22 20,8 26,22" fill="#e8c27a"/>
+  <polygon points="38,22 44,8 50,22" fill="#e8c27a"/>
+  <polygon points="16,20 20,12 24,20" fill="#ffc9a1"/>
+  <polygon points="40,20 44,12 48,20" fill="#ffc9a1"/>
+  <!-- 猫头 -->
+  <circle cx="32" cy="36" r="18" fill="#e8c27a"/>
+  <!-- 眼睛 -->
+  <circle cx="25" cy="34" r="3" fill="#2a2a2a"/>
+  <circle cx="39" cy="34" r="3" fill="#2a2a2a"/>
+  <circle cx="25" cy="33" r="1" fill="#fff"/>
+  <circle cx="39" cy="33" r="1" fill="#fff"/>
+  <!-- 鼻子 -->
+  <rect x="30" y="38" width="4" height="2" fill="#e88a9a"/>
+  <!-- 嘴 -->
+  <path d="M 28 42 Q 32 46 36 42" stroke="#2a2a2a" stroke-width="1.5" fill="none"/>
+  <!-- 胡须 -->
+  <line x1="12" y1="38" x2="22" y2="40" stroke="#c96f1e" stroke-width="1"/>
+  <line x1="12" y1="42" x2="22" y2="42" stroke="#c96f1e" stroke-width="1"/>
+  <line x1="42" y1="40" x2="52" y2="38" stroke="#c96f1e" stroke-width="1"/>
+  <line x1="42" y1="42" x2="52" y2="42" stroke="#c96f1e" stroke-width="1"/>
+  <!-- 蝴蝶结 -->
+  <circle cx="48" cy="20" r="4" fill="#ff6f92"/>
+  <circle cx="44" cy="16" r="3" fill="#ff6f92"/>
+  <circle cx="52" cy="16" r="3" fill="#ff6f92"/>
+</svg>

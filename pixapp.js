@@ -84,9 +84,9 @@
     state.mood=clamp(state.mood+a.mood);
     // 成长：互动加经验（喂最多，其次玩/洗/摸）
     const XP = { feed:8, clean:6, pet:5, play:10 };
+    var got = null;
     if(window.Sync && XP[name]){
-      const got = window.Sync.addXp({xp:state.xp||0, level:state.level||1}, XP[name]);
-      if(got.level > (state.level||1)){ showBubble('🎉 羊毛升级到 Lv.'+got.level+' 啦！'); }
+      got = window.Sync.addXp({xp:state.xp||0, level:state.level||1}, XP[name]);
       state.xp=got.xp; state.level=got.level;
     }
     if(window.PixCat){
@@ -95,6 +95,9 @@
       else if(a.act==='bath')window.PixCat.play('bath',3.0);
       else window.PixCat.play('pet',1.0);
     }
+    if(window.Sfx) window.Sfx[a.act] && window.Sfx[a.act]();
+    if(window.Sfx && got && got.level > (state.level||1)){ window.Sfx.upgrade(); showBubble('🎉 羊毛升级到 Lv.'+got.level+' 啦！'); }
+
     showBubble(a.bubble); updateUI(); pushState();
     if(window.Sync && window.Sync.addEvent) window.Sync.addEvent(getNick(), name);
     if(window.Sync) refreshEvents();

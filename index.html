@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>羊毛 · 像素云养猫</title>
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#ffd94d">
 <style>
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   html,body{ background:#2d2a3e; }
@@ -45,6 +47,20 @@
     background:#1a1a2e; border:2px solid #000; padding:4px 12px; font-size:13px; font-weight:800;
     box-shadow:3px 3px 0 rgba(0,0,0,.4); display:flex;align-items:center;gap:6px;
   }
+  #health .dot { width:7px; height:7px; border-radius:50%; background:#6fe88a; display:inline-block; }
+  #health .dot.warn { background:#ffd94d; }
+  #health .dot.err { background:#ff6b6b; }
+  /* 经验条 */
+  #levelTag { position:absolute; top:8px; left:12px; z-index:5; display:flex; flex-direction:column; gap:3px; align-items:flex-start; }
+  #levelTag .lv { background:#1a1a2e; border:2px solid #000; padding:3px 10px; font-size:12px; font-weight:800; box-shadow:3px 3px 0 rgba(0,0,0,.4); color:#ffd94d; }
+  #levelTag .xpbar { width:70px; height:5px; background:#0f0f1a; border:1px solid #000; }
+  #levelTag .xpbar i { display:block; height:100%; background:linear-gradient(90deg,#ffd94d,#ff9f3c); transition:width .4s; }
+  /* 首次引导 */
+  #guide { position:fixed; inset:0; z-index:999; display:flex; align-items:center; justify-content:center; background:rgba(10,8,20,.85); }
+  #guide .box { background:#1a1a2e; border:3px solid #000; box-shadow:6px 6px 0 rgba(0,0,0,.5); padding:22px 26px; max-width:320px; text-align:center; }
+  #guide .box h3 { color:#ffd94d; font-size:18px; margin-bottom:10px; }
+  #guide .box p { color:#cfc8e0; font-size:13px; line-height:1.7; margin-bottom:14px; }
+  #guide .box button { padding:10px 24px; border:2px solid #000; background:#ffd94d; color:#1a1a2e; font-weight:800; cursor:pointer; font-family:inherit; }
   .health-good{color:#6fe88a} .health-ok{color:#ffd94d} .health-bad{color:#ff6b6b}
 
   /* 气泡 */
@@ -99,6 +115,16 @@
   .board-list::-webkit-scrollbar{ display:none; }
   .msg { flex:0 0 auto; max-width:180px; background:#232038; border:2px solid #000; padding:7px 10px; font-size:11px; color:#cfc8e0; box-shadow:3px 3px 0 rgba(0,0,0,.4); }
   .msg .m { font-size:10px; color:#ffd94d; font-weight:800; margin-bottom:3px; }
+  /* 时间线 */
+  .timeline { border-top:2px dashed #393057; padding-top:8px; padding-bottom:4px; margin-top:6px; }
+  .tl-head { font-size:12px; color:#a99ec4; font-weight:700; margin-bottom:6px; }
+  .tl-list { display:flex; flex-direction:column; gap:4px; max-height:110px; overflow-y:auto; padding-right:2px; }
+  .tl-list::-webkit-scrollbar{ width:4px; }
+  .tl-list::-webkit-scrollbar-thumb{ background:#3a3a50; }
+  .tl-item { display:flex; gap:6px; font-size:11px; color:#cfc8e0; background:#232038; border:1px solid #000; padding:4px 8px; }
+  .tl-item .who { color:#ffd94d; font-weight:700; white-space:nowrap; }
+  .tl-item .act { flex:1; }
+  .tl-item .when { color:#7a7496; font-size:10px; white-space:nowrap; }
   .board-input { display:flex; gap:8px; margin-top:10px; }
   .board-input input { flex:1; padding:10px 12px; border:2px solid #000; font-size:13px; outline:none; background:#0f0f1a; color:#e8e4f0; font-family:inherit; }
   .board-input button { padding:10px 18px; border:none; background:#ffd94d; color:#1a1a2e; font-weight:800; cursor:pointer; border:2px solid #000; font-family:inherit; }
@@ -130,9 +156,18 @@
   <div id="stage">
     <div class="hint">✋ 点一下它试试，多点点有惊喜</div>
     <div id="need-tip"></div>
-    <div id="levelTag">Lv.1</div>
-    <div id="health">💚 状态良好</div>
+    <div id="levelTag"><span class="lv">Lv.1</span><span class="xpbar"><i id="xpFill"></i></span></div>
+    <div id="health"><span class="dot" id="netDot"></span>💚 状态良好</div>
     <div id="bubble">喵~</div>
+  </div>
+
+  <div id="guide">
+    <div class="box">
+      <h3>喵~ 我是羊毛 🐱</h3>
+      <p>小易和洋洋在照顾我，你也是吗？<br>点下面的按钮跟我玩：<br>🍗喂吃 🛁洗澡 🤚摸摸 🎾玩</p>
+      <p>我会饿、会脏、会孤独，还会升级变样子哦～<br>也可以跟我聊天，我认识小易和洋洋！</p>
+      <button id="guideClose">知道啦！</button>
+    </div>
   </div>
 
   <div class="panel">
@@ -159,13 +194,32 @@
         <button id="msgSend">发送</button>
       </div>
     </div>
+    <div class="timeline">
+      <div class="tl-head">📜 互动记录</div>
+      <div class="tl-list" id="eventList"></div>
+    </div>
   </div>
 
-  <script src="./lib/supabase.min.js?v=13"></script>
-  <script src="./supabaseConfig.js?v=13"></script>
-  <script src="./sync.js?v=13"></script>
-  <script src="./aikey.js?v=13"></script>
-  <script src="./pixcat.js?v=13"></script>
-  <script src="./pixapp.js?v=13"></script>
+  <script>
+    if('serviceWorker' in navigator){
+      window.addEventListener('load',function(){
+        navigator.serviceWorker.register('./sw.js').catch(function(){});
+      });
+    }
+  </script>
+  <script src="./lib/supabase.min.js"></script>
+  <script src="./supabaseConfig.js"></script>
+  <script src="./sync.js"></script>
+  <script src="./sound.js"></script>
+  <script src="./aikey.js"></script>
+  <script src="./pixcat.js"></script>
+  <script src="./pixapp.js"></script>
+  <script>
+    if('serviceWorker' in navigator){
+      window.addEventListener('load',function(){
+        navigator.serviceWorker.register('./sw.js').catch(function(){});
+      });
+    }
+  </script>
 </body>
 </html>
