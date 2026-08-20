@@ -97,6 +97,13 @@
   .board-input button:active{ transform:translate(2px,2px); }
   #need-tip{ text-align:center; font-size:11px; font-weight:700; color:#ff6b6b; min-height:16px; opacity:0; transition:opacity .3s; }
   #need-tip.show{opacity:1;}
+
+  /* AI 聊天输入框 */
+  .chatbox { position:relative; z-index:3; width:100%; max-width:480px; display:flex; gap:8px; padding:6px 16px; }
+  .chatbox input { flex:1; padding:10px 14px; border:2px solid #000; font-size:13px; outline:none; background:#0f0f1a; color:#e8e4f0; font-family:inherit; }
+  .chatbox button { padding:10px 16px; border:none; background:#ffd94d; color:#1a1a2e; font-weight:800; cursor:pointer; border:2px solid #000; font-family:inherit; }
+  .chatbox button:active{ transform:translate(2px,2px); }
+  #chatStatus { display:none; position:absolute; right:16px; bottom:-14px; font-size:10px; color:#7fd0f0; }
 </style>
 </head>
 <body>
@@ -104,6 +111,12 @@
   <div class="topbar">
     <h1>🐱 羊毛</h1>
     <p>像素云养宠 · 点它摸一摸 · 各种动作都有</p>
+  </div>
+
+  <div class="chatbox">
+    <input id="chatInput" maxlength="60" placeholder="跟羊毛说点什么…（AI 对话）">
+    <button id="chatSend">▶</button>
+    <span id="chatStatus"></span>
   </div>
 
   <div id="stage">
