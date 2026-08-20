@@ -30,7 +30,7 @@
   };
 
   // 状态
-  const state = { act: 'idle', actT: 0, frame: 0, expr: 'normal', blink: 0, dizzy: 0, starAnim: 0 };
+  const state = { act: 'idle', actT: 0, frame: 0, expr: 'normal', blink: 0, dizzy: 0, starAnim: 0, level: 1 };
   const P = { bodyY:0, headY:0, headX:0, tailA:0, squash:1, eyeH:0, eyeOpenH:3,
     legL:[0,0], legR:[0,0], earL:0, earR:0, headW:12 };
   // 双人互动参数
@@ -310,6 +310,7 @@
   window.PixCat = {
     init, play: playAct, setAct,
     setExpr:function(e){state.expr=e;},
+    setLevel:function(l){state.level=l;},
     setDizzy:function(){ state.dizzy=1.5; state.act='dizzy'; state.actT=0; state.actDur=1.5; },
     getState:function(){return {act:state.act,expr:state.expr};}
   };

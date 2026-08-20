@@ -56,7 +56,9 @@
     tip.textContent=tipText;tip.className=tipText?'show':'';
     // 等级显示
     const lt=document.getElementById('levelTag');
-    if(lt) lt.textContent='Lv.'+(state.level||1);
+    const lvEl=document.querySelector('#levelTag .lv'); const xpEl=document.getElementById('xpFill');
+    if(lvEl) lvEl.textContent='Lv.'+(state.level||1);
+    if(xpEl && state.xp!==undefined){ var need=state.level*100-50; var pct=Math.max(0,Math.min(100,(state.xp/need)*100)); xpEl.style.width=pct+"%"; }
   }
 
   // 把当前状态写回共享（限频）
@@ -94,6 +96,8 @@
       else window.PixCat.play('pet',1.0);
     }
     showBubble(a.bubble); updateUI(); pushState();
+    if(window.Sync && window.Sync.addEvent) window.Sync.addEvent(getNick(), name);
+    if(window.Sync) refreshEvents();
   }
 
   // 周期性兜底同步（本地不再自行衰减，衰减由 sync 基于 last_updated 计算）
@@ -128,6 +132,19 @@
 
   // ===== 留言板（Supabase 共享） =====
   let messages=[];
+  // 时间线
+  let events=[];
+  const ACT_LABEL={feed:'🍗 喂食',clean:'🛁 洗澡',pet:'🤚 抚摸',play:'🎾 玩耍'};
+  function timeAgo(t){const s=Math.floor((Date.now()-new Date(t).getTime())/1000);if(s<60)return s+'秒前';if(s<3600)return Math.floor(s/60)+'分钟前';if(s<86400)return Math.floor(s/3600)+'小时前';return Math.floor(s/86400)+'天前';}
+  function renderEvents(){const l=document.getElementById('eventList');l.innerHTML=events.map(e=>'<div class="tl-item"><span class="who">'+esc(e.nickname||'匿名')+'</span><span class="act">'+(ACT_LABEL[e.action]||e.action)+'</span><span class="when">'+timeAgo(e.created_at)+'</span></div>').join('');}
+  function refreshEvents(){if(!window.Sync)return;window.Sync.loadEvents(30).then(function(rows){events=rows||[];renderEvents();});}
+  // 首次引导
+  function initGuide(){if(!localStorage.getItem('yangmao_guided')){const g=document.getElementById('guide');if(g)g.style.display='flex';}}
+  const guideClose=document.getElementById('guideClose');if(guideClose)guideClose.addEventListener('click',function(){localStorage.setItem('yangmao_guided','1');const g=document.getElementById('guide');if(g)g.style.display='none';});
+  initGuide();
+  // 联网提示
+  function setNet(ok){const d=document.getElementById('netDot');if(!d)return;d.className='dot'+(ok?'':' err');}
+  function setNetLoading(){const d=document.getElementById('netDot');if(d)d.className='dot warn';}
   function esc(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
   function renderMsgs(){
     const list=document.getElementById('msgList');
@@ -156,6 +173,7 @@
     state.hunger=clamp(data.hunger);state.clean=clamp(data.clean);state.mood=clamp(data.mood);
     if(typeof data.xp!=='undefined')state.xp=data.xp;
     if(typeof data.level!=='undefined')state.level=data.level;
+    if(window.PixCat) window.PixCat.setLevel(state.level);
     cloudReady=true;
     updateUI();
     // 首次加载时，若状态很差给温柔提醒（保底体验）
@@ -168,8 +186,9 @@
   if(window.Sync){
     window.Sync.init({
       onState:cloudOnState,
-      onMsg:function(){ refreshMsgs(); },
-      onError:function(){ /* 连不上则保持本地 */ }
+      onMsg:function(){ refreshMsgs(); refreshEvents(); },
+      onReady:function(){ setNet(true); },
+      onError:function(){ setNet(false); }
     });
   }
 

@@ -46,6 +46,9 @@
 
   function loadMsgs(){ if(!sb)return Promise.resolve([]); return sb.from(cfg.msgsTable).select('*').order('created_at',{ascending:true}).then(({data,error})=>error?[]:(data||[])).catch(()=>[]); }
   function addMsg(nickname,content){ if(!sb)return Promise.resolve(false); return sb.from(cfg.msgsTable).insert({nickname,content}).then(({error})=>!error).catch(()=>false); }
+  // 时间线
+  function loadEvents(limit){ if(!sb)return Promise.resolve([]); return sb.from('yangmao_events').select('*').order('created_at',{ascending:false}).limit(limit||30).then(({data,error})=>error?[]:(data||[])).catch(()=>[]); }
+  function addEvent(nickname,action){ if(!sb)return Promise.resolve(false); return sb.from('yangmao_events').insert({nickname,action}).then(({error})=>!error).catch(()=>false); }
 
   // 成长：经验与等级
   function xpForLevel(level){ return (level-1)*100 + 50; } // 每级基础经验
@@ -69,6 +72,7 @@
     if(!sb){ if(opts.onError)opts.onError('supabase 不可用'); return; }
     loadState().then(function(data){
       connected=true;
+      if(opts.onReady)opts.onReady();
       if(data && opts.onState){
         const dec = computeDecay(data);
         // 如果随时间有衰减，写回（把"流逝的时间"消化掉）
@@ -90,6 +94,7 @@
   window.Sync = {
     init, loadState, saveState, loadMsgs, addMsg,
     computeDecay, addXp,
+    loadEvents, addEvent,
     isConnected:function(){return connected;},
   };
 })();
