@@ -243,3 +243,4 @@ function showBubble(text) {
 // 暴露到全局（普通脚本模式）
 window.initCat3D = initCat3D;
 window.doAction3D = doAction3D;
+window.getState3D = function () { return { hunger: state.hunger, clean: state.clean, mood: state.mood }; };
