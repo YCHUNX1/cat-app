@@ -87,6 +87,9 @@
   .board-head { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
   .board-head b { font-size:13px; color:#ffd94d; }
   .board-head .tag { font-size:10px; color:#a99ec4; background:#232038; padding:2px 8px; }
+  .board-head .nickbar { display:flex; align-items:center; gap:4px; margin-left:auto; font-size:10px; color:#a99ec4; }
+  .board-head .nickbar input { width:56px; padding:3px 6px; border:2px solid #000; background:#0f0f1a; color:#e8e4f0; font-size:11px; outline:none; font-family:inherit; }
+  .board-head .nickbar button { padding:3px 7px; border:none; border:1px solid #000; background:#ffd94d; color:#1a1a2e; font-weight:800; font-size:10px; cursor:pointer; font-family:inherit; }
   .board-list { display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; scrollbar-width:none; }
   .board-list::-webkit-scrollbar{ display:none; }
   .msg { flex:0 0 auto; max-width:180px; background:#232038; border:2px solid #000; padding:7px 10px; font-size:11px; color:#cfc8e0; box-shadow:3px 3px 0 rgba(0,0,0,.4); }
@@ -141,7 +144,9 @@
     </div>
 
     <div class="board">
-      <div class="board-head"><b>💬 留言板</b><span class="tag">暂为本地</span></div>
+      <div class="board-head"><b>💬 留言板</b><span class="tag">共享中</span>
+        <span class="nickbar">我是 <input id="nickInput" maxlength="8" placeholder="昵称"> <button id="nickSave">✓</button></span>
+      </div>
       <div class="board-list" id="msgList"></div>
       <div class="board-input">
         <input id="msgInput" maxlength="40" placeholder="说点什么…">
@@ -150,8 +155,11 @@
     </div>
   </div>
 
-  <script src="./aikey.js?v=11"></script>
-  <script src="./pixcat.js?v=11"></script>
-  <script src="./pixapp.js?v=11"></script>
+  <script src="./lib/supabase.min.js?v=12"></script>
+  <script src="./supabaseConfig.js?v=12"></script>
+  <script src="./sync.js?v=12"></script>
+  <script src="./aikey.js?v=12"></script>
+  <script src="./pixcat.js?v=12"></script>
+  <script src="./pixapp.js?v=12"></script>
 </body>
 </html>
