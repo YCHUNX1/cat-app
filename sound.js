@@ -33,8 +33,8 @@
   }
 
   window.Sfx = {
-    feed: function () { tone(800, 0.08, 'square', 0.12); setTimeout(() => tone(1200, 0.06, 'sine', 0.1), 60); },
-    clean: function () { noise(0.3, 0.12, 1200); setTimeout(() => noise(0.2, 0.08, 1500), 150); },
+    eat: function () { tone(800, 0.08, 'square', 0.12); setTimeout(() => tone(1200, 0.06, 'sine', 0.1), 60); },
+    bath: function () { noise(0.3, 0.12, 1200); setTimeout(() => noise(0.2, 0.08, 1500), 150); },
     pet: function () { tone(120, 0.25, 'sawtooth', 0.06, 80); },
     play: function () { tone(600, 0.08, 'sine', 0.1); setTimeout(() => tone(900, 0.08, 'sine', 0.1), 80); setTimeout(() => tone(1200, 0.1, 'sine', 0.12), 160); },
     upgrade: function () { tone(523, 0.12, 'sine', 0.12); setTimeout(() => tone(659, 0.12, 'sine', 0.12), 120); setTimeout(() => tone(784, 0.15, 'sine', 0.14), 240); setTimeout(() => tone(1047, 0.2, 'sine', 0.12), 380); },
