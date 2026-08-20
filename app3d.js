@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import * as THREE from './lib/three/three.module.js';
 
 // ===== 诊断：捕获错误并显示到屏幕 =====
 window.__catDiag = { step: 'module-loaded', errors: [], webgl: null };
