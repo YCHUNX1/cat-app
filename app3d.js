@@ -1,5 +1,31 @@
 import * as THREE from 'three';
 
+// ===== 诊断：捕获错误并显示到屏幕 =====
+window.__catDiag = { step: 'module-loaded', errors: [], webgl: null };
+try {
+  const c = document.createElement('canvas');
+  const gl = c.getContext('webgl2') || c.getContext('webgl') || c.getContext('experimental-webgl');
+  window.__catDiag.webgl = gl ? (gl.getParameter(gl.VERSION) + '') : 'NOT AVAILABLE';
+} catch (e) { window.__catDiag.webgl = 'ERROR: ' + e.message; }
+window.addEventListener('error', function (ev) {
+  window.__catDiag.errors.push(ev.message + ' @ ' + (ev.filename || '').split('/').pop() + ':' + ev.lineno);
+  renderDiag();
+});
+window.addEventListener('unhandledrejection', function (ev) {
+  window.__catDiag.errors.push('Promise: ' + (ev.reason && ev.reason.message));
+  renderDiag();
+});
+function renderDiag() {
+  let d = document.getElementById('diag');
+  if (!d) {
+    d = document.createElement('div');
+    d.id = 'diag';
+    d.style.cssText = 'position:fixed;bottom:0;left:0;right:0;max-height:40vh;overflow:auto;background:rgba(20,20,30,.92);color:#7ff;font:11px/1.4 monospace;padding:10px 14px;z-index:9999;white-space:pre-wrap;';
+    document.body.appendChild(d);
+  }
+  d.textContent = 'WEBGL: ' + window.__catDiag.webgl + '\n' + window.__catDiag.errors.join('\n') + '\n'; }
+renderDiag();
+
 // ============================================================
 //  3D 卡通小猫 - 程序化建模
 //  用几何体组合构建精致可爱的 3D 小猫，含材质/光照/动画/表情
@@ -29,8 +55,13 @@ const C = {
 };
 
 export function initCat3D(container) {
-  // 渲染器
-  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  try {
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+  } catch (e) {
+    window.__catDiag.errors.push('WebGLRenderer create fail: ' + e.message);
+    renderDiag();
+    return;
+  }
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setSize(container.clientWidth, container.clientHeight);
   renderer.shadowMap.enabled = true;
