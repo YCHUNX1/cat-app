@@ -179,43 +179,57 @@
   function drawOwner(side, who){
     const ox=W/2+side*20;
     const gy=H-9;
-    // 互动时朝向猫伸出手
     const reaching = (state.act==='eat'||state.act==='pet'||state.act==='bath'||state.act==='play');
     if(who==='m'){
-      rect(ox-4,gy-14,8,11,PAL.mShirt);
-      rect(ox-4,gy-3,8,3,PAL.mPants);
-      px(ox-4,gy,3,1,PAL.mPants); px(ox+1,gy,3,1,PAL.mPants);
-      rect(ox-3,gy-21,6,6,PAL.mSkin);
-      rect(ox-3,gy-22,6,3,PAL.mHair);
-      rect(ox-4,gy-21,1,2,PAL.mHair);
-      px(ox-2,gy-18,1,1,'#333'); px(ox+1,gy-18,1,1,'#333');
-      // 男主人朝右（向猫）伸手
-      if(reaching){
-        // 手臂：从身体右侧伸出朝向中间猫
-        px(ox+2,gy-13,2,3,PAL.mShirt);
-        px(ox+4+6,gy-12,8,2,PAL.mShirt);  // 横伸的手臂
-        px(ox+4+12,gy-12,2,2,PAL.mSkin);   // 手
-      } else {
-        px(ox-4,gy-11,2,5,PAL.mShirt);
-      }
-    } else { // 女
-      rect(ox-4,gy-14,8,11,PAL.fDress);
-      rect(ox-5,gy-5,10,5,PAL.fDress);
-      px(ox-3,gy,2,1,PAL.fShoe); px(ox+1,gy,2,1,PAL.fShoe);
-      rect(ox-3,gy-21,6,6,PAL.fSkin);
-      rect(ox-4,gy-21,8,7,PAL.fHair);
-      rect(ox-3,gy-16,2,4,PAL.fHair);
-      rect(ox+1,gy-16,2,4,PAL.fHair);
-      px(ox-2,gy-18,1,1,'#333'); px(ox+1,gy-18,1,1,'#333');
-      px(ox+1,gy-23,2,2,PAL.fBow);
-      // 女主人朝左（向猫）伸手
-      if(reaching){
-        px(ox-2,gy-13,2,3,PAL.fSkin);
-        px(ox-2-6,gy-12,8,2,PAL.fDress);
-        px(ox-2-12,gy-12,2,2,PAL.fSkin);
-      } else {
-        px(ox+2,gy-11,2,5,PAL.fDress);
-      }
+      // 腿 + 鞋
+      px(ox-3,gy-4,2,4,'#3a3a46'); px(ox+1,gy-4,2,4,'#3a3a46');
+      px(ox-3,gy,3,1,'#22222a'); px(ox+1,gy,3,1,'#22222a');
+      // 身体（蓝色上衣 + 袖子 + 领口）
+      rect(ox-4,gy-13,8,9,'#4a7fb5');
+      px(ox-5,gy-12,1,6,'#3a6ba0'); px(ox+4,gy-12,1,6,'#3a6ba0');
+      rect(ox-2,gy-13,4,2,'#5a8fc5');
+      // 头（圆润）
+      rect(ox-4,gy-22,8,8,'#f2c9a4');
+      px(ox-5,gy-21,1,5,'#f2c9a4'); px(ox+4,gy-21,1,5,'#f2c9a4');
+      // 黑发
+      rect(ox-5,gy-24,10,3,'#2b2b33');
+      px(ox-4,gy-21,2,2,'#2b2b33'); px(ox+2,gy-21,2,2,'#2b2b33');
+      px(ox-5,gy-22,1,2,'#2b2b33'); px(ox+4,gy-22,1,2,'#2b2b33');
+      // 眉毛 眼睛 嘴
+      px(ox-3,gy-19,2,1,'#2b2b33'); px(ox+1,gy-19,2,1,'#2b2b33');
+      px(ox-3,gy-18,1,2,'#22222a'); px(ox+2,gy-18,1,2,'#22222a');
+      px(ox-1,gy-15,2,1,'#c96a5a');
+      // 互动手臂
+      if(reaching){ px(ox+2,gy-12,2,2,PAL.mShirt); px(ox+4+6,gy-11,9,2,'#4a7fb5'); px(ox+4+14,gy-11,2,2,PAL.mSkin); }
+      else { px(ox-4,gy-11,2,5,'#4a7fb5'); }
+    } else {
+      // 腿 + 鞋
+      px(ox-2,gy-4,2,4,'#e8d8f0'); px(ox+1,gy-4,2,4,'#e8d8f0');
+      // 裙摆（A 字）+ 上身 + 腰带
+      rect(ox-5,gy-5,10,4,'#f0889a');
+      rect(ox-6,gy-3,12,3,'#f0889a');
+      rect(ox-4,gy-13,8,8,'#f0889a');
+      px(ox-2,gy-12,4,2,'#f59aa8');
+      px(ox-4,gy-7,8,1,'#e06070');
+      // 头
+      rect(ox-4,gy-22,8,8,'#f6d0ac');
+      px(ox-5,gy-22,1,6,'#f6d0ac'); px(ox+4,gy-22,1,6,'#f6d0ac');
+      // 棕色长发
+      rect(ox-5,gy-24,10,3,'#8a5a2e');
+      px(ox-5,gy-21,2,5,'#8a5a2e'); px(ox+3,gy-21,2,4,'#8a5a2e');
+      px(ox-4,gy-16,2,4,'#8a5a2e'); px(ox+2,gy-16,2,3,'#8a5a2e');
+      px(ox-6,gy-20,1,6,'#7a4c26');
+      px(ox-3,gy-21,2,2,'#8a5a2e');
+      // 蝴蝶结发饰
+      px(ox+2,gy-25,3,2,'#e06070'); px(ox+2,gy-25,1,3,'#e06070');
+      // 眉 眼 腮红 嘴
+      px(ox-3,gy-19,2,1,'#8a5a2e'); px(ox+1,gy-19,2,1,'#8a5a2e');
+      px(ox-3,gy-18,1,2,'#22222a'); px(ox+2,gy-18,1,2,'#22222a');
+      px(ox-5,gy-17,2,1,'#ff9a9a'); px(ox+3,gy-17,2,1,'#ff9a9a');
+      px(ox-1,gy-15,2,1,'#c96a5a');
+      // 互动手臂
+      if(reaching){ px(ox-2,gy-12,2,2,PAL.fSkin); px(ox-2-6,gy-11,9,2,PAL.fDress); px(ox-2-14,gy-11,2,2,PAL.fSkin); }
+      else { px(ox+2,gy-11,2,5,'#f0889a'); }
     }
   }
 
