@@ -28,6 +28,24 @@
   };
   function clamp(v){ return Math.max(0, Math.min(100, v)); }
 
+  // 通知系统
+  let notifPermission = false;
+  let lastNotifState = { hungry: false, dirty: false };
+  async function requestNotif() {
+    if (!('Notification' in window)) return;
+    if (Notification.permission === 'granted') { notifPermission = true; return; }
+    if (Notification.permission !== 'denied') {
+      const p = await Notification.requestPermission();
+      notifPermission = (p === 'granted');
+    }
+  }
+  function sendNotif(title, body) {
+    if (!notifPermission || Notification.permission !== 'granted') return;
+    try {
+      new Notification(title, { body, icon: './icon.svg', badge: './icon.svg' });
+    } catch (e) { console.log('notif fail', e); }
+  }
+
   function showBubble(text) {
     const b = document.getElementById('bubble');
     b.textContent = text; b.classList.add('show');
@@ -143,12 +161,28 @@
   function refreshEvents(){if(!window.Sync)return;window.Sync.loadEvents(30).then(function(rows){events=rows||[];renderEvents();});}
   // 首次引导
   function initGuide(){if(!localStorage.getItem('yangmao_guided')){const g=document.getElementById('guide');if(g)g.style.display='flex';}}
-  const guideClose=document.getElementById('guideClose');if(guideClose)guideClose.addEventListener('click',function(){localStorage.setItem('yangmao_guided','1');const g=document.getElementById('guide');if(g)g.style.display='none';});
+  const guideClose=document.getElementById('guideClose');if(guideClose)guideClose.addEventListener('click',function(){localStorage.setItem('yangmao_guided','1');const g=document.getElementById('guide');if(g){g.style.display='none';requestNotif();}});
   initGuide();
   // 联网提示
   function setNet(ok){const d=document.getElementById('netDot');if(!d)return;d.className='dot'+(ok?'':' err');}
   function setNetLoading(){const d=document.getElementById('netDot');if(d)d.className='dot warn';}
   function esc(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+  // 状态提醒
+  function checkNotif() {
+    if (state.hunger < 25 && !lastNotifState.hungry) {
+      lastNotifState.hungry = true;
+      sendNotif('🐱 羊毛饿了', '羊毛肚子咕咕叫，快喂喂它吧！');
+    } else if (state.hunger >= 40) {
+      lastNotifState.hungry = false;
+    }
+    if (state.clean < 25 && !lastNotifState.dirty) {
+      lastNotifState.dirty = true;
+      sendNotif('🐱 羊毛脏了', '羊毛身上臭臭的，帮它洗个澡吧！');
+    } else if (state.clean >= 40) {
+      lastNotifState.dirty = false;
+    }
+  }
   function renderMsgs(){
     const list=document.getElementById('msgList');
     list.innerHTML=messages.map(m=>`<div class="msg"><div class="m">🐱 ${esc(m.nickname||'匿名')}</div>${esc(m.content)}</div>`).join('');
@@ -179,6 +213,7 @@
     if(window.PixCat) window.PixCat.setLevel(state.level);
     cloudReady=true;
     updateUI();
+    checkNotif();
     // 首次加载时，若状态很差给温柔提醒（保底体验）
     if(firstCloudLoad && fromCloud){
       firstCloudLoad=false;
@@ -283,12 +318,14 @@
     const txt = document.getElementById('travelText');
     if (bar) bar.style.display = 'flex';
     if (txt) txt.textContent = '羊毛出门去 ' + dest.name + ' 旅行了，过会儿回来～';
+    sendNotif('🧳 羊毛出门旅行啦', '羊毛去了 ' + dest.name + '，3小时后回来～');
   };
   window.onWoolReturn = function(data) {
     const bar = document.getElementById('travelBar');
     if (bar) bar.style.display = 'none';
     showPostcard(data);
     if (typeof refreshEvents === 'function') refreshEvents();
+    sendNotif('✉️ 羊毛旅行回来啦', '羊毛从 ' + (data.destination || '某地') + ' 寄回了明信片！');
   };
   document.getElementById('pcClose').addEventListener('click', function() {
     document.getElementById('postcardModal').style.display = 'none';

@@ -1,4 +1,4 @@
-const CACHE = 'yangmao-v1';
+const CACHE = 'yangmao-v2';
 const SHELL = ['./','./index.html','./manifest.json','./icon.svg','./icon-512.svg','./sw.js'];
 
 self.addEventListener('install', e => {
