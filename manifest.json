@@ -8,10 +8,14 @@
   "orientation": "portrait",
   "background_color": "#2d2a3e",
   "theme_color": "#ffd94d",
+  "categories": ["games", "lifestyle", "social"],
+  "lang": "zh-CN",
+  "dir": "ltr",
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "./icon.svg",
-      "sizes": "192x192",
+      "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
     },
