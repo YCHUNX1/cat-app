@@ -75,7 +75,7 @@
     if (window.Sync) {
       await window.Sync.addTravel({ destination: dest.name, gift: dest.emoji + ' ' + dest.gift });
       traveling = true;
-      if (window.Sfx) window.Sfx.play();
+      if (window.Sfx) window.Sfx.walk();
       if (window.onWoolTravel) window.onWoolTravel(dest);
     }
   }
