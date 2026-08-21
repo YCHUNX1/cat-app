@@ -1,0 +1,7 @@
+include:
+  - .well-known
+  - _headers
+
+# 确保所有文件都被包含
+keep_files:
+  - .well-known
