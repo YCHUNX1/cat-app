@@ -141,6 +141,21 @@
   .chatbox button { padding:10px 16px; border:none; background:#ffd94d; color:#1a1a2e; font-weight:800; cursor:pointer; border:2px solid #000; font-family:inherit; }
   .chatbox button:active{ transform:translate(2px,2px); }
   #chatStatus { display:none; position:absolute; right:16px; bottom:-14px; font-size:10px; color:#7fd0f0; }
+  /* 旅行状态条 */
+  #travelBar { position:relative; z-index:3; width:100%; max-width:480px; display:flex; align-items:center; gap:8px; padding:6px 16px; font-size:12px; color:#cfc8e0; background:#232038; }
+  #travelBar .tl-emoji { font-size:18px; }
+  /* 明信片弹窗 */
+  #postcardModal { position:fixed; inset:0; z-index:9999; display:flex; align-items:center; justify-content:center; background:rgba(10,8,20,.85); }
+  .postcard { background:#fffaf0; border:3px solid #000; box-shadow:6px 6px 0 rgba(0,0,0,.5); width:340px; max-width:90vw; }
+  .pc-header { background:#ffd94d; color:#1a1a2e; font-weight:800; padding:10px 14px; font-size:15px; border-bottom:2px solid #000; }
+  .pc-body { padding:14px 16px; }
+  .pc-dest { font-size:16px; font-weight:800; color:#b0882e; margin-bottom:6px; }
+  .pc-story { font-size:13px; color:#3a3028; line-height:1.6; margin-bottom:10px; }
+  .pc-gift { font-size:13px; color:#b5703a; }
+  .pc-actions { display:flex; gap:10px; padding:10px 14px; border-top:2px solid #000; background:#fff; }
+  .pc-actions button { flex:1; padding:10px; border:2px solid #000; font-weight:800; cursor:pointer; font-family:inherit; background:#ffd94d; color:#1a1a2e; }
+  .pc-actions button:active { transform:translate(2px,2px); }
+  .pc-actions #pcClose { background:#e8e0d0; }
 </style>
 </head>
 <body>
@@ -154,6 +169,10 @@
     <input id="chatInput" maxlength="60" placeholder="跟羊毛说点什么…（AI 对话）">
     <button id="chatSend">▶</button>
     <span id="chatStatus"></span>
+  </div>
+
+  <div id="travelBar" style="display:none">
+    <span class="tl-emoji">🧳</span> <span id="travelText">羊毛出门旅行了…</span>
   </div>
 
   <div id="stage">
@@ -211,12 +230,12 @@
     }
   </script>
   <script src="./lib/supabase.min.js"></script>
-  <script src="./supabaseConfig.js?v17"></script>
-  <script src="./sync.js?v17"></script>
-  <script src="./sound.js?v17"></script>
-  <script src="./aikey.js?v17"></script>
-  <script src="./pixcat.js?v17"></script>
-  <script src="./pixapp.js?v17"></script>
+  <script src="./supabaseConfig.js?v18"></script>
+  <script src="./sync.js?v18"></script>
+  <script src="./sound.js?v18"></script>
+  <script src="./aikey.js?v18"></script>
+  <script src="./pixcat.js?v18"></script>
+  <script src="./pixapp.js?v18"></script>
   <script>
     if('serviceWorker' in navigator){
       window.addEventListener('load',function(){
@@ -224,5 +243,20 @@
       });
     }
   </script>
+  <div id="postcardModal" style="display:none">
+    <div class="postcard">
+      <div class="pc-header">✉️ 羊毛的旅行明信片</div>
+      <canvas id="pcCanvas" width="320" height="400"></canvas>
+      <div class="pc-body">
+        <div class="pc-dest" id="pcDest"></div>
+        <div class="pc-story" id="pcStory"></div>
+        <div class="pc-gift" id="pcGift"></div>
+      </div>
+      <div class="pc-actions">
+        <button id="pcSave">保存</button>
+        <button id="pcClose">关闭</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

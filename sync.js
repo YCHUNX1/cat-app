@@ -46,6 +46,10 @@
 
   function loadMsgs(){ if(!sb)return Promise.resolve([]); return sb.from(cfg.msgsTable).select('*').order('created_at',{ascending:true}).then(({data,error})=>error?[]:(data||[])).catch(()=>[]); }
   function addMsg(nickname,content){ if(!sb)return Promise.resolve(false); return sb.from(cfg.msgsTable).insert({nickname,content}).then(({error})=>!error).catch(()=>false); }
+  // 旅行
+  function loadTravels(limit){ if(!sb)return Promise.resolve([]); return sb.from('yangmao_travels').select('*').order('departed_at',{ascending:false}).limit(limit||10).then(({data,error})=>error?[]:(data||[])).catch(()=>[]); }
+  function addTravel({destination,gift,duration}){ if(!sb)return Promise.resolve(false); return sb.from('yangmao_travels').insert({destination,gift,duration:duration||3}).then(({error})=>!error).catch(()=>false); }
+  function returnTravel(id,story){ if(!sb)return Promise.resolve(false); return sb.from('yangmao_travels').update({returned:true,story,returned_at:new Date().toISOString()}).eq('id',id).then(({error})=>!error).catch(()=>false); }
   // 时间线
   function loadEvents(limit){ if(!sb)return Promise.resolve([]); return sb.from('yangmao_events').select('*').order('created_at',{ascending:false}).limit(limit||30).then(({data,error})=>error?[]:(data||[])).catch(()=>[]); }
   function addEvent(nickname,action){ if(!sb)return Promise.resolve(false); return sb.from('yangmao_events').insert({nickname,action}).then(({error})=>!error).catch(()=>false); }
@@ -95,6 +99,7 @@
     init, loadState, saveState, loadMsgs, addMsg,
     computeDecay, addXp,
     loadEvents, addEvent,
+    loadTravels, addTravel, returnTravel,
     isConnected:function(){return connected;},
   };
 })();

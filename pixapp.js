@@ -238,4 +238,65 @@
     else{if(Math.random()<0.25){const a=['play','pet','walk'];window.PixCat.play(a[Math.floor(Math.random()*a.length)],1.2);}}
   }
   setInterval(aiBehavior,20000);
+
+  // ===== 旅行 =====
+  function drawPostcard(dest, story, gift) {
+    const c = document.getElementById('pcCanvas');
+    if (!c) return;
+    const ctx = c.getContext('2d');
+    ctx.imageSmoothingEnabled = false;
+    // 背景
+    const grd = ctx.createLinearGradient(0,0,0,400);
+    grd.addColorStop(0,'#ffe8a0'); grd.addColorStop(1,'#f0c060');
+    ctx.fillStyle = grd; ctx.fillRect(0,0,320,400);
+    // 像素草地
+    ctx.fillStyle = '#8fd373'; ctx.fillRect(0,300,320,100);
+    ctx.fillStyle = '#6fc457'; for (let x=0;x<320;x+=16){ ctx.fillRect(x,300,8,100); }
+    // 猫（简化像素猫）
+    const cx=160, cy=200;
+    ctx.fillStyle='#e8c27a'; ctx.fillRect(cx-30,cy-10,60,50); // body
+    ctx.fillStyle='#e8c27a'; ctx.fillRect(cx-25,cy-40,50,35); // head
+    ctx.fillStyle='#ffc9a1'; ctx.fillRect(cx-18,cy-50,12,12); // ear
+    ctx.fillRect(cx+6,cy-50,12,12);
+    ctx.fillStyle='#2a2a2a'; ctx.fillRect(cx-15,cy-30,8,6); // eyes
+    ctx.fillRect(cx+7,cy-30,8,6);
+    ctx.fillStyle='#e88a9a'; ctx.fillRect(cx-5,cy-20,10,5); // nose
+    ctx.fillStyle='#fff'; ctx.fillRect(cx-12,cy+15,24,8); // belly
+    ctx.fillStyle='#c96f1e'; ctx.fillRect(cx-20,cy+30,12,15); // legs
+    ctx.fillRect(cx+8,cy+30,12,15);
+    // 目的地 emoji
+    ctx.font = '40px serif'; ctx.fillText(dest.emoji || '🐱', cx-20, 140);
+    // 装饰
+    ctx.font = '12px monospace'; ctx.fillStyle='#3a3028';
+    ctx.fillText('~ wool ~', 20, 30);
+  }
+  function showPostcard(data) {
+    document.getElementById('pcDest').textContent = (data.destination || '某地') + ' 旅行日记';
+    document.getElementById('pcStory').textContent = data.story || '喵~我去旅行啦！';
+    document.getElementById('pcGift').textContent = '带回礼物：' + (data.gift || '满满的思念');
+    const destObj = { emoji: '🐱' };
+    drawPostcard(destObj, data.story, data.gift);
+    document.getElementById('postcardModal').style.display = 'flex';
+  }
+  window.onWoolTravel = function(dest) {
+    const bar = document.getElementById('travelBar');
+    const txt = document.getElementById('travelText');
+    if (bar) bar.style.display = 'flex';
+    if (txt) txt.textContent = '羊毛出门去 ' + dest.name + ' 旅行了，过会儿回来～';
+  };
+  window.onWoolReturn = function(data) {
+    const bar = document.getElementById('travelBar');
+    if (bar) bar.style.display = 'none';
+    showPostcard(data);
+    if (typeof refreshEvents === 'function') refreshEvents();
+  };
+  document.getElementById('pcClose').addEventListener('click', function() {
+    document.getElementById('postcardModal').style.display = 'none';
+  });
+  document.getElementById('pcSave').addEventListener('click', function() {
+    const c = document.getElementById('pcCanvas');
+    const link = document.createElement('a');
+    link.download = 'wool-postcard.png'; link.href = c.toDataURL(); link.click();
+  });
+  if (window.Travel) window.Travel.init();
 })();
